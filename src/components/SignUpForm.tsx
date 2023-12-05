@@ -8,8 +8,8 @@ import { AxiosError } from "axios";
 import { useState } from "react";
 import Button from "./Button";
 import "../axios/api";
-import { createCustomer } from "../axios/api";
-import ModalSuccess from "./ModalSuccess";
+import { useAuthContext } from "@/context/AuthContext";
+import { notifcation } from "@/functions/notifcations";
 const schema = z.object({
   name: z.string().min(3, "Insira um nome válido"),
   email: z.string().email("Informe um email válido"),
@@ -21,9 +21,8 @@ type DataProps = z.infer<typeof schema>;
 
 const SignUpForm = () => {
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<{ success: boolean | null }>({
-    success: null,
-  });
+
+  const { signup } = useAuthContext();
 
   const {
     register,
@@ -44,17 +43,25 @@ const SignUpForm = () => {
     }
     try {
       setLoading(true);
-      await createCustomer(data);
-      setLoading(false);
 
-      setStatus({
-        success: true,
-      });
+      await signup(data);
+
+      setLoading(false);
     } catch (error: unknown) {
       setLoading(false);
 
       if (error instanceof AxiosError) {
-        console.log(error.response?.data);
+        const { response } = error;
+        if (response?.data) {
+          const { error } = response.data;
+          notifcation.error(error);
+        }
+
+        if (response?.status === 500) {
+          notifcation.error(
+            "Falha ao se comunicar com o servidor. Tente novamente mais tarde."
+          );
+        }
       }
     }
   };
@@ -64,7 +71,6 @@ const SignUpForm = () => {
       className="flex flex-col items-center gap-10  w-full"
       onSubmit={handleSubmit(onSubmit)}
     >
-      {status.success && <ModalSuccess />}
       <Input
         {...register("name")}
         errorText={errors?.name?.message}

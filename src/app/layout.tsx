@@ -1,6 +1,17 @@
+"use client";
+
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import Head from "./head";
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
+import { AuthProvider } from "@/context/AuthContext";
+import { PrivateRoute } from "@/components/privateRoute";
+import { SocketProvider } from "@/context/SocketContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -17,17 +28,18 @@ export default function RootLayout({
     <html lang="en">
       <Head />
       <body className={poppins.className}>
-        <main className="bg-purple-primary">
-          <nav className="p-5">
-            <h1 className="text-white font-bold text-2xl">CHAT PLAY</h1>
-          </nav>
-
-          {children}
-        </main>
-
-        <footer>
-          <h1></h1>
-        </footer>
+        <AuthProvider>
+          <PrivateRoute>
+            <SocketProvider>
+              <main className="overflow-hidden relative bg-purple-primary">
+                <ToastContainer />
+                <NavBar />
+                {children}
+                <Footer />
+              </main>
+            </SocketProvider>
+          </PrivateRoute>
+        </AuthProvider>
       </body>
     </html>
   );

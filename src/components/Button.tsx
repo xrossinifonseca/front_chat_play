@@ -1,3 +1,5 @@
+"use client";
+
 import React, { ButtonHTMLAttributes, forwardRef } from "react";
 import Loading from "./Loading";
 interface ButtonProps extends ButtonHTMLAttributes<HTMLElement> {

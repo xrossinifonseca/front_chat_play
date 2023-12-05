@@ -1,8 +1,6 @@
 import io from "socket.io-client";
 
-const url = process.env.NEXT_PUBLIC_BACKEND_URL
 
-console.log("Backend URL:", url);
 
 
 export const socket = () =>

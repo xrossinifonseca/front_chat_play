@@ -62,7 +62,7 @@ const UsersOnline = ({ show }: { show: boolean }) => {
 
   return (
     <div
-      className={`absolute h-full top-[20%] ${
+      className={`absolute h-full top-[28%] ${
         show ? "left-0" : "-left-[1000px]"
       } transition-all lg:transition-none ease-in-out duration-500 w-full p-2 lg:p-0 bg-purple-secundary lg:rounded-2xl  z-50 lg:static  lg:w-2/5 lg:h-[500px]`}
     >

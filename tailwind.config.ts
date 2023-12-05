@@ -10,6 +10,8 @@ const config: Config = {
     extend: {
       colors: {
         "purple-primary": "#544878",
+        "purple-secundary": "#6F619A",
+        "light-pink": "#EFA985",
       },
     },
   },

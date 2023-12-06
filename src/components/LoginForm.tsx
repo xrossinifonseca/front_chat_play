@@ -34,31 +34,23 @@ export const LoginForm = () => {
   });
 
   const onSubmit = async (data: DataProps) => {
-    let fetchTimeout;
+    setLoading(true);
+
+    const hostingTimeout = handleTimeout({
+      message:
+        "Estamos usando serviços de hospedagem gratuita, o que pode resultar em tempos de resposta mais longos",
+      time: 10000,
+    });
+
+    const connectionTimeout = handleTimeout({
+      message:
+        "A conexão está demorando mais do que o esperado, por favor, atualize a página para tentar se reconectar com o servidor",
+      time: 20000,
+    });
 
     try {
-      setLoading(true);
-
-      fetchTimeout = handleTimeout({
-        message:
-          "Estamos usando serviços de hospedagem gratuita, o que pode resultar em tempos de resposta mais longos",
-        time: 10000,
-      });
-
-      fetchTimeout = handleTimeout({
-        message:
-          "A conexão esta demorando mais do que o esperado, por favor, atualize a pagina para tentar se reconectar com o servidor",
-        time: 25000,
-      });
-
       await login(data);
-
-      setLoading(false);
-      clearTimeout(fetchTimeout);
     } catch (error: unknown) {
-      setLoading(false);
-      clearTimeout(fetchTimeout);
-
       if (error instanceof AxiosError) {
         const { response } = error;
         if (response?.data.error === "Email ou senha inválida") {
@@ -78,6 +70,10 @@ export const LoginForm = () => {
           "Falha ao se comunicar com o servidor. Tente novamente mais tarde."
         );
       }
+    } finally {
+      setLoading(false);
+      clearTimeout(connectionTimeout);
+      clearTimeout(hostingTimeout);
     }
   };
 

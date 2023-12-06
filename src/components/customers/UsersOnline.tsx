@@ -67,7 +67,7 @@ const UsersOnline = ({ show }: { show: boolean }) => {
       } transition-all lg:transition-none ease-in-out duration-500 w-full p-2 lg:p-0 bg-purple-secundary lg:rounded-2xl  z-50 lg:static  lg:w-2/5 lg:h-[500px]`}
     >
       <div className="text-center mt-4">
-        <h1 className="text-xl text-light-pink">usuários onlines</h1>
+        <h1 className="text-xl text-light-pink">usuários online</h1>
       </div>
 
       <div className="h-full w-full p-2 overflow-y-hidden">

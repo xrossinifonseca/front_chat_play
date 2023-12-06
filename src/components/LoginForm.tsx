@@ -14,14 +14,14 @@ const schema = z.object({
   password: z.string().min(1, "Necessário informar senha"),
 });
 
+import { useFetchTimeout } from "@/hooks/useFetchTimeout";
+
 type DataProps = z.infer<typeof schema>;
 
 export const LoginForm = () => {
   const [loading, setLoading] = useState(false);
-  const [messageTimeout,setMessageTimeout] = useState("")
-  const [visible,setVisible] = useState(true)
-  
   const { login } = useAuthContext();
+  const { handleTimeout } = useFetchTimeout();
 
   const {
     register,
@@ -34,47 +34,46 @@ export const LoginForm = () => {
   });
 
   const onSubmit = async (data: DataProps) => {
-
-    let fetchTimeout; 
+    let fetchTimeout;
 
     try {
-        setLoading(true);
-        
-        fetchTimeout = setTimeout(()=>{
-          setMessageTimeout("Estamos usando serviços de hospedagem gratuita, o que pode resultar em tempos de resposta mais longos")
-          
-          setTimeout(()=>{
-            setVisible(false)
-          },5000)
-          
-        },10000)
+      setLoading(true);
 
-        await login(data)
-        
-        
-        clearTimeout(fetchTimeout)
-        setLoading(false);
+      fetchTimeout = handleTimeout({
+        message:
+          "Estamos usando serviços de hospedagem gratuita, o que pode resultar em tempos de resposta mais longos",
+        time: 10000,
+      });
 
+      fetchTimeout = handleTimeout({
+        message:
+          "A conexão esta demorando mais do que o esperado, por favor, atualize a pagina para tentar se reconectar com o servidor",
+        time: 25000,
+      });
 
+      await login(data);
 
+      setLoading(false);
+      clearTimeout(fetchTimeout);
     } catch (error: unknown) {
       setLoading(false);
-      setMessageTimeout('')
-      clearTimeout(fetchTimeout)
+      clearTimeout(fetchTimeout);
 
       if (error instanceof AxiosError) {
         const { response } = error;
-        if (response?.data.error === 'Email ou senha inválida') {
-          
-          let errorMessage = response?.data.error
+        if (response?.data.error === "Email ou senha inválida") {
+          let errorMessage = response?.data.error;
           notifcation.error(errorMessage);
-         return setError("password", { type: "custom", message:errorMessage });
+          return setError("password", {
+            type: "custom",
+            message: errorMessage,
+          });
         }
 
-          notifcation.error(
-            "Falha ao se comunicar com o servidor. Tente novamente mais tarde."
-          );
-      }else{
+        notifcation.error(
+          "Falha ao se comunicar com o servidor. Tente novamente mais tarde."
+        );
+      } else {
         notifcation.error(
           "Falha ao se comunicar com o servidor. Tente novamente mais tarde."
         );
@@ -82,14 +81,11 @@ export const LoginForm = () => {
     }
   };
 
-
-  
   return (
     <form
       className="flex flex-col items-center gap-10  w-full"
       onSubmit={handleSubmit(onSubmit)}
     >
-      {messageTimeout && <h1 className={`transitions-opacity ease-in-out duration-500 ${!visible && "opacity-0"} text-center text-slate-100 text-sm`}>{messageTimeout}</h1>}
       <Input
         {...register("email")}
         errorText={errors.email?.message}

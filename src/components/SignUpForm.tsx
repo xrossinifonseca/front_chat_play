@@ -10,6 +10,7 @@ import Button from "./Button";
 import "../axios/api";
 import { useAuthContext } from "@/context/AuthContext";
 import { notifcation } from "@/functions/notifcations";
+import { useFetchTimeout } from "@/hooks/useFetchTimeout";
 const schema = z.object({
   name: z.string().min(3, "Insira um nome válido"),
   email: z.string().email("Informe um email válido"),
@@ -35,20 +36,39 @@ const SignUpForm = () => {
     mode: "onBlur",
   });
 
+  const { handleTimeout } = useFetchTimeout();
+
   const onSubmit = async (data: DataProps) => {
     if (data.password != data.confirmPassword) {
       return setError("confirmPassword", {
         message: "As senhas fornecidas não são iguais",
       });
     }
+
+    let fetchTimeout;
     try {
       setLoading(true);
+
+      fetchTimeout = handleTimeout({
+        message:
+          "Estamos usando serviços de hospedagem gratuita, o que pode resultar em tempos de resposta mais longos",
+        time: 10000,
+      });
+
+      fetchTimeout = handleTimeout({
+        message:
+          "A conexão esta demorando mais do que o esperado, por favor, atualize a pagina para tentar se reconectar com o servidor",
+        time: 27000,
+      });
 
       await signup(data);
 
       setLoading(false);
+
+      clearTimeout(fetchTimeout);
     } catch (error: unknown) {
       setLoading(false);
+      clearTimeout(fetchTimeout);
 
       if (error instanceof AxiosError) {
         const { response } = error;
